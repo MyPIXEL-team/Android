@@ -9,5 +9,10 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:clipChildren="false">
+		<com.example.mypixel.camera.view.CameraPreview
+			android:id="@+id/camera_preview"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:keepScreenOn="true" />
 	</com.example.mypixel.camera.view.CameraView>
 </androidx.constraintlayout.widget.ConstraintLayout>
