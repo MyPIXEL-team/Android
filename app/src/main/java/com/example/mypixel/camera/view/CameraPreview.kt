@@ -13,6 +13,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.example.mypixel.camera.Camera
 import com.example.mypixel.camera.gl.GLFrameBuffer
+import com.example.mypixel.camera.shader.CopyShader
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -23,6 +24,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     private var mHeight: Int = 0
     private var mSurfaceTexture: SurfaceTexture? = null
     private var mSurfaceFrameBuffer: GLFrameBuffer? = null
+    private var mCopyShader: CopyShader? = null
 
     constructor(context: Context) : super(context) {
         init()
@@ -44,7 +46,13 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     }
 
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
-        // TODO("Not yet implemented")
+        try {
+            if (mCopyShader == null) {
+                mCopyShader = CopyShader(context)
+            }
+        } catch (e: Exception) {
+            handler.post { Toast.makeText(context, "Failed to create a shader", Toast.LENGTH_SHORT).show() }
+        }
     }
 
     override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
