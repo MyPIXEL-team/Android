@@ -2,6 +2,8 @@ package com.example.mypixel.camera.view
 
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.opengl.GLES11Ext
+import android.opengl.GLES31
 import android.opengl.GLSurfaceView
 import android.util.AttributeSet
 import android.widget.Toast
@@ -10,12 +12,17 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.example.mypixel.camera.Camera
+import com.example.mypixel.camera.gl.GLFrameBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener {
     private var mLifecycle: Lifecycle? = null
     private var mCamera: Camera? = null
+    private var mWidth: Int = 0
+    private var mHeight: Int = 0
+    private var mSurfaceTexture: SurfaceTexture? = null
+    private var mSurfaceFrameBuffer: GLFrameBuffer? = null
 
     constructor(context: Context) : super(context) {
         init()
@@ -41,7 +48,25 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     }
 
     override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
-        // TODO("Not yet implemented")
+        if (mWidth == width && mHeight == height) {
+            return
+        }
+
+        mWidth = width
+        mHeight = height
+
+        mSurfaceFrameBuffer = GLFrameBuffer(width, height, GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES31.GL_RGBA, GLES31.GL_UNSIGNED_BYTE)
+
+        val oldSurfaceTexture: SurfaceTexture? = mSurfaceTexture
+
+        mSurfaceTexture = SurfaceTexture(mSurfaceFrameBuffer!!.getTexture()!!.getTexture())
+        mSurfaceTexture!!.setOnFrameAvailableListener(this)
+
+        handler.post(this::setupCamera)
+
+        oldSurfaceTexture?.release()
+
+        requestRender()
     }
 
     override fun onDrawFrame(gl: GL10) {
