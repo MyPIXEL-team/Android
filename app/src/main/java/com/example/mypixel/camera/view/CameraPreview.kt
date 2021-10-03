@@ -3,6 +3,7 @@ package com.example.mypixel.camera.view
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.util.AttributeSet
+import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -38,7 +39,22 @@ class CameraPreview : LifecycleObserver, GLSurfaceView {
         mLifecycle!!.addObserver(this)
     }
 
+    fun setupCamera() {
+        releaseCamera()
+
+        try {
+            mCamera = Camera()
+        } catch (e: Exception) {
+            handler.post { Toast.makeText(context, "Failed to create a camera", Toast.LENGTH_SHORT).show() }
+        }
+
+        startCamera()
+    }
+
     private fun init() {
+    }
+
+    private fun startCamera() {
     }
 
     private fun releaseCamera() {
