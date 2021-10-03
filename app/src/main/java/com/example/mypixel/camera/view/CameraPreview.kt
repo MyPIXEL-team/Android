@@ -42,6 +42,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     override fun onPause() {
         releaseCamera()
+        releaseResources()
         super.onPause()
     }
 
@@ -118,5 +119,21 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
             camera.release()
         }
         mCamera = null
+    }
+
+    private fun releaseResources() {
+        queueEvent {
+            mWidth = 0
+            mHeight = 0
+
+            mSurfaceFrameBuffer?.release()
+            mSurfaceFrameBuffer = null
+
+            mSurfaceTexture?.release()
+            mSurfaceTexture = null
+
+            mCopyShader?.release()
+            mCopyShader = null
+        }
     }
 }
