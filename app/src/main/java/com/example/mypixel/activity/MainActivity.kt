@@ -18,5 +18,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupCameraPreview() {
         val cameraPreview = findViewById<CameraPreview>(R.id.camera_preview)
+        cameraPreview.setLifecycleOwner(this)
     }
 }
