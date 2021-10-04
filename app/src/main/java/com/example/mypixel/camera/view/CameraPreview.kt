@@ -119,13 +119,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
     fun setupCamera() {
         releaseCamera()
-
-        try {
-            mCamera = Camera()
-        } catch (e: Exception) {
-            handler.post { Toast.makeText(context, "Failed to create a camera", Toast.LENGTH_SHORT).show() }
-        }
-
+        createCamera()
         startCamera()
     }
 
@@ -135,6 +129,16 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
         setEGLContextClientVersion(3)
         setRenderer(this)
         renderMode = RENDERMODE_WHEN_DIRTY
+    }
+
+    private fun createCamera() {
+        try {
+            mSurfaceTexture?.let { surfaceTexture ->
+                mCamera = Camera(context, surfaceTexture, mWidth, mHeight)
+            }
+        } catch (e: Exception) {
+            handler.post { Toast.makeText(context, "Failed to create a camera", Toast.LENGTH_SHORT).show() }
+        }
     }
 
     private fun startCamera() {
