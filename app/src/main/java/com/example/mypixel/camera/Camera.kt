@@ -21,6 +21,7 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
     private var mCameraHandlerThread: HandlerThread? = null
     private var mCameraDevice: CameraDevice? = null
     private val mCameraDeviceStateCallback: CameraDevice.StateCallback = getCameraDeviceStateCallback()
+    private var mPreviewRequest: CaptureRequest.Builder? = null
 
     init {
         surfaceTexture.setDefaultBufferSize(width, height)
@@ -81,6 +82,15 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
 
     private fun checkPermission(): Boolean {
         return checkSelfPermission(mContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun createPreviewRequest() {
+        mPreviewRequest = mCameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        mPreviewRequest?.let {
+            it.set(CaptureRequest.CONTROL_CAPTURE_INTENT, CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW)
+            it.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+            it.addTarget(mSurface)
+        }
     }
 
     private fun startCameraHandler() {
