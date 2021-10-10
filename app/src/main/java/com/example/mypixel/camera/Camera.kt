@@ -44,6 +44,7 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
     fun release() {
         stopCameraHandler()
         stopCameraDevice()
+        stopCameraCaptureSession()
     }
 
     private fun getFrontCameraId(): String {
@@ -139,5 +140,10 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
     private fun stopCameraDevice() {
         mCameraDevice?.close()
         mCameraDevice = null
+    }
+
+    private fun stopCameraCaptureSession() {
+        mCameraCaptureSession?.close()
+        mCameraCaptureSession = null
     }
 }
