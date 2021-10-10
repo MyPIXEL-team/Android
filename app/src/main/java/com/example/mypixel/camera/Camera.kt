@@ -15,6 +15,14 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
         surfaceTexture.setDefaultBufferSize(width, height)
     }
 
+    fun start() {
+        if (mIsCameraStarted) {
+            return
+        }
+
+        mIsCameraStarted = true
+    }
+
     fun release() {
         // TODO: Not yet implemented.
     }
