@@ -7,11 +7,13 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.os.Handler
 import android.os.HandlerThread
+import android.view.Surface
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.LifecycleObserver
 
 class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, height: Int) : LifecycleObserver {
     private val mContext: Context = context
+    private val mSurface: Surface = Surface(surfaceTexture)
     private val mCameraManager: CameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     private val mCameraId: String = getFrontCameraId()
     private var mIsCameraStarted: Boolean = false
@@ -64,7 +66,7 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
         override fun onOpened(cameraDevice: CameraDevice) {
             if (mCameraDevice == null) {
                 mCameraDevice = cameraDevice
-                // TODO: Need to create capture session here.
+                createCaptureSession()
             }
         }
 
@@ -97,6 +99,14 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
 
     private fun checkPermission(): Boolean {
         return checkSelfPermission(mContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun createCaptureSession() {
+        try {
+            mCameraDevice?.createCaptureSession(listOf(mSurface), mCameraCaptureSessionStateCallback, null);
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun createPreviewRequest() {
