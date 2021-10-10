@@ -40,6 +40,12 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
 
         startCameraHandler()
 
+        try {
+            mCameraManager.openCamera(mCameraId, mCameraDeviceStateCallback, mCameraHandler)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         mIsCameraStarted = true
     }
 
