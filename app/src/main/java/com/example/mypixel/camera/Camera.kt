@@ -21,6 +21,7 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
     private var mCameraHandlerThread: HandlerThread? = null
     private var mCameraDevice: CameraDevice? = null
     private val mCameraDeviceStateCallback: CameraDevice.StateCallback = getCameraDeviceStateCallback()
+    private var mCameraCaptureSession: CameraCaptureSession? = null
     private var mPreviewRequest: CaptureRequest.Builder? = null
 
     init {
@@ -90,6 +91,16 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
             it.set(CaptureRequest.CONTROL_CAPTURE_INTENT, CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW)
             it.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
             it.addTarget(mSurface)
+        }
+    }
+
+    private fun repeatPreviewRequest() {
+        mPreviewRequest ?: return
+
+        try {
+            mCameraCaptureSession?.setRepeatingRequest(mPreviewRequest!!.build(), null, mCameraHandler)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
