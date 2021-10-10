@@ -1,11 +1,14 @@
 package com.example.mypixel.camera
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.HandlerThread
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.LifecycleObserver
 
 class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, height: Int) : LifecycleObserver {
@@ -21,6 +24,10 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
     }
 
     fun start() {
+        if (!checkPermission()) {
+            return
+        }
+
         if (mIsCameraStarted) {
             return
         }
@@ -45,6 +52,10 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
         }
 
         throw Exception("Failed to find front camera id")
+    }
+
+    private fun checkPermission(): Boolean {
+        return checkSelfPermission(mContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun startCameraHandler() {
