@@ -4,9 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CameraManager
+import android.hardware.camera2.*
 import android.os.Handler
 import android.os.HandlerThread
 import androidx.core.content.ContextCompat.checkSelfPermission
@@ -22,6 +20,7 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
     private var mCameraDevice: CameraDevice? = null
     private val mCameraDeviceStateCallback: CameraDevice.StateCallback = getCameraDeviceStateCallback()
     private var mCameraCaptureSession: CameraCaptureSession? = null
+    private val mCameraCaptureSessionStateCallback: CameraCaptureSession.StateCallback = getCaptureSessionStateCallback()
     private var mPreviewRequest: CaptureRequest.Builder? = null
 
     init {
@@ -78,6 +77,20 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
             mIsCameraStarted = false
             cameraDevice.close()
             mCameraDevice = null
+        }
+    }
+
+    private fun getCaptureSessionStateCallback() = object : CameraCaptureSession.StateCallback() {
+        override fun onConfigured(cameraCaptureSession: CameraCaptureSession) {
+            mCameraDevice ?: return
+            mCameraCaptureSession = cameraCaptureSession
+            createPreviewRequest()
+            repeatPreviewRequest()
+        }
+
+        override fun onConfigureFailed(cameraCaptureSession: CameraCaptureSession) {
+            cameraCaptureSession.close()
+            mCameraCaptureSession = null
         }
     }
 
