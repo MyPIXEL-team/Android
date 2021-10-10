@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.HandlerThread
@@ -18,6 +19,8 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
     private var mIsCameraStarted: Boolean = false
     private var mCameraHandler: Handler? = null
     private var mCameraHandlerThread: HandlerThread? = null
+    private var mCameraDevice: CameraDevice? = null
+    private val mCameraDeviceStateCallback: CameraDevice.StateCallback = getCameraDeviceStateCallback()
 
     init {
         surfaceTexture.setDefaultBufferSize(width, height)
@@ -52,6 +55,27 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
         }
 
         throw Exception("Failed to find front camera id")
+    }
+
+    private fun getCameraDeviceStateCallback() = object : CameraDevice.StateCallback() {
+        override fun onOpened(cameraDevice: CameraDevice) {
+            if (mCameraDevice == null) {
+                mCameraDevice = cameraDevice
+                // TODO: Need to create capture session here.
+            }
+        }
+
+        override fun onDisconnected(cameraDevice: CameraDevice) {
+            mIsCameraStarted = false
+            cameraDevice.close()
+            mCameraDevice = null
+        }
+
+        override fun onError(cameraDevice: CameraDevice, error: Int) {
+            mIsCameraStarted = false
+            cameraDevice.close()
+            mCameraDevice = null
+        }
     }
 
     private fun checkPermission(): Boolean {
