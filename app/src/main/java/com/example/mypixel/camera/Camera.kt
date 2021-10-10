@@ -42,6 +42,7 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
 
     fun release() {
         stopCameraHandler()
+        stopCameraDevice()
     }
 
     private fun getFrontCameraId(): String {
@@ -99,5 +100,10 @@ class Camera(context: Context, surfaceTexture: SurfaceTexture, width: Int, heigh
                 e.printStackTrace()
             }
         }
+    }
+
+    private fun stopCameraDevice() {
+        mCameraDevice?.close()
+        mCameraDevice = null
     }
 }
