@@ -42,7 +42,7 @@ class SplashActivity : AppCompatActivity() {
         val alertDialog = AlertDialog.Builder(this)
                 .setMessage("앱을 실행하려면 카메라 권한이 필요합니다")
                 .setPositiveButton("ok") { _, _ -> checkPermissions() }
-                .setNegativeButton("no", null)
+                .setNegativeButton("no") { _, _ -> finish() }
                 .create()
 
         alertDialog.setView(view)
@@ -55,7 +55,7 @@ class SplashActivity : AppCompatActivity() {
         val alertDialog = AlertDialog.Builder(this)
                 .setMessage("앱을 실행하려면 카메라 권한을 설정해주세요")
                 .setPositiveButton("ok") { _, _ -> startSettings() }
-                .setNegativeButton("no", null)
+                .setNegativeButton("no") { _, _ -> finish() }
                 .create()
 
         alertDialog.setView(view)
