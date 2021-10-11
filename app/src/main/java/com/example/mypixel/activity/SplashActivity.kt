@@ -25,8 +25,7 @@ class SplashActivity : AppCompatActivity() {
 
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (areAllPermissionsAllowed()) {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                startMainActivity()
             } else {
                 if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
                     showPermissionPopup()
@@ -71,6 +70,7 @@ class SplashActivity : AppCompatActivity() {
 
     private fun checkPermissions() {
         if (areAllPermissionsAllowed()) {
+            startMainActivity()
             return
         }
         requestPermissions(PERMISSIONS_REQUIRED, PERMISSION_REQUEST_CODE)
@@ -83,6 +83,11 @@ class SplashActivity : AppCompatActivity() {
             }
         }
         return true
+    }
+
+    private fun startMainActivity() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
     }
 
     private val PERMISSION_REQUEST_CODE = 2000
