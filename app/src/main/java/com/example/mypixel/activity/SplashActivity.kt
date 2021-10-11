@@ -43,6 +43,7 @@ class SplashActivity : AppCompatActivity() {
                 .setMessage(getString(R.string.permission_request_with_rationale))
                 .setPositiveButton(getString(R.string.ok)) { _, _ -> checkPermissions() }
                 .setNegativeButton(getString(R.string.no)) { _, _ -> finish() }
+                .setCancelable(false)
                 .create()
 
         alertDialog.setView(view)
@@ -56,6 +57,7 @@ class SplashActivity : AppCompatActivity() {
                 .setMessage(getString(R.string.permission_request_without_rationale))
                 .setPositiveButton(getString(R.string.ok)) { _, _ -> startSettings() }
                 .setNegativeButton(getString(R.string.no)) { _, _ -> finish() }
+                .setCancelable(false)
                 .create()
 
         alertDialog.setView(view)
