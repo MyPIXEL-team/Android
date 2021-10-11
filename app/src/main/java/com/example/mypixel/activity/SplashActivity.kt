@@ -36,6 +36,13 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            checkPermissions()
+        }
+    }
+
     private fun showPermissionPopup() {
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.activity_splash, null)
@@ -89,7 +96,7 @@ class SplashActivity : AppCompatActivity() {
     private fun startSettings() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 .setData(Uri.parse("package:" + BuildConfig.APPLICATION_ID))
-        startActivity(intent)
+        startActivityForResult(intent, PERMISSION_REQUEST_CODE)
     }
 
     private val PERMISSION_REQUEST_CODE = 2000
