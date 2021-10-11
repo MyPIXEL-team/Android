@@ -40,9 +40,9 @@ class SplashActivity : AppCompatActivity() {
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.activity_splash, null)
         val alertDialog = AlertDialog.Builder(this)
-                .setMessage("앱을 실행하려면 카메라 권한이 필요합니다")
-                .setPositiveButton("ok") { _, _ -> checkPermissions() }
-                .setNegativeButton("no") { _, _ -> finish() }
+                .setMessage(getString(R.string.permission_request_with_rationale))
+                .setPositiveButton(getString(R.string.ok)) { _, _ -> checkPermissions() }
+                .setNegativeButton(getString(R.string.no)) { _, _ -> finish() }
                 .create()
 
         alertDialog.setView(view)
@@ -53,9 +53,9 @@ class SplashActivity : AppCompatActivity() {
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.activity_splash, null)
         val alertDialog = AlertDialog.Builder(this)
-                .setMessage("앱을 실행하려면 카메라 권한을 설정해주세요")
-                .setPositiveButton("ok") { _, _ -> startSettings() }
-                .setNegativeButton("no") { _, _ -> finish() }
+                .setMessage(getString(R.string.permission_request_without_rationale))
+                .setPositiveButton(getString(R.string.ok)) { _, _ -> startSettings() }
+                .setNegativeButton(getString(R.string.no)) { _, _ -> finish() }
                 .create()
 
         alertDialog.setView(view)
