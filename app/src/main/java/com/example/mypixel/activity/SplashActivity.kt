@@ -54,12 +54,10 @@ class SplashActivity : AppCompatActivity() {
     private fun showSettingsPopup() {
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.activity_splash, null)
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                .setData(Uri.parse("package:" + BuildConfig.APPLICATION_ID))
         val alertDialog = AlertDialog.Builder(this)
                 .setMessage("앱을 실행하려면 카메라 권한을 설정해주세요")
                 .setPositiveButton("ok") { dialog, which ->
-                    startActivity(intent)
+                    startSettings()
                 }
                 .setNeutralButton("no", null)
                 .create()
@@ -88,6 +86,12 @@ class SplashActivity : AppCompatActivity() {
     private fun startMainActivity() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()
+    }
+
+    private fun startSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.parse("package:" + BuildConfig.APPLICATION_ID))
+        startActivity(intent)
     }
 
     private val PERMISSION_REQUEST_CODE = 2000
