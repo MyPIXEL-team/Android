@@ -1,17 +1,22 @@
 package com.example.mypixel.activity
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import android.view.LayoutInflater
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.mypixel.BuildConfig
 import com.example.mypixel.R
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-
         checkPermissions()
     }
 
@@ -20,20 +25,57 @@ class SplashActivity : AppCompatActivity() {
 
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (areAllPermissionsAllowed()) {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                startMainActivity()
             } else {
-                // TODO: Show button that can request permissions again.
-                finish()
+                if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                    showPermissionPopup()
+                } else {
+                    showSettingsPopup()
+                }
             }
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            checkPermissions()
+        }
+    }
+
+    private fun showPermissionPopup() {
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.activity_splash, null)
+        val alertDialog = AlertDialog.Builder(this)
+                .setMessage(getString(R.string.permission_request_with_rationale))
+                .setPositiveButton(getString(R.string.ok)) { _, _ -> checkPermissions() }
+                .setNegativeButton(getString(R.string.no)) { _, _ -> finish() }
+                .setCancelable(false)
+                .create()
+
+        alertDialog.setView(view)
+        alertDialog.show()
+    }
+
+    private fun showSettingsPopup() {
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.activity_splash, null)
+        val alertDialog = AlertDialog.Builder(this)
+                .setMessage(getString(R.string.permission_request_without_rationale))
+                .setPositiveButton(getString(R.string.ok)) { _, _ -> startSettings() }
+                .setNegativeButton(getString(R.string.no)) { _, _ -> finish() }
+                .setCancelable(false)
+                .create()
+
+        alertDialog.setView(view)
+        alertDialog.show()
+    }
+
     private fun checkPermissions() {
         if (areAllPermissionsAllowed()) {
+            startMainActivity()
             return
         }
-
         requestPermissions(PERMISSIONS_REQUIRED, PERMISSION_REQUEST_CODE)
     }
 
@@ -43,8 +85,18 @@ class SplashActivity : AppCompatActivity() {
                 return false
             }
         }
-
         return true
+    }
+
+    private fun startMainActivity() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
+
+    private fun startSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.parse("package:" + BuildConfig.APPLICATION_ID))
+        startActivityForResult(intent, PERMISSION_REQUEST_CODE)
     }
 
     private val PERMISSION_REQUEST_CODE = 2000
