@@ -29,6 +29,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     private var mSurfaceFrameBuffer: GLFrameBuffer? = null
     private var mIsSurfaceTextureReady: Boolean = false
     private var mCopyShader: CopyShader? = null
+    private val mTransform = FloatArray(16)
     private lateinit var mFullQuadVertices: FloatBuffer
 
     constructor(context: Context) : super(context) {
@@ -84,7 +85,23 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     }
 
     override fun onDrawFrame(gl: GL10) {
-        // TODO("Not yet implemented")
+        GLES31.glClearColor(0f, 0f, 0f, 1f)
+        GLES31.glClear(GLES31.GL_COLOR_BUFFER_BIT)
+
+        mSurfaceTexture?.let { surfaceTexture ->
+            if (mIsSurfaceTextureReady) {
+                surfaceTexture.updateTexImage()
+                surfaceTexture.getTransformMatrix(mTransform)
+                mIsSurfaceTextureReady = false
+            }
+
+            mCopyShader?.let { copyShader ->
+                copyShader.setTransform(mTransform)
+                mSurfaceFrameBuffer?.let { surfaceFrameBuffer ->
+                    runShaderProgram(copyShader, surfaceFrameBuffer, null)
+                }
+            } ?: return
+        }
     }
 
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
