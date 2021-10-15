@@ -24,6 +24,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     private var mHeight: Int = 0
     private var mSurfaceTexture: SurfaceTexture? = null
     private var mSurfaceFrameBuffer: GLFrameBuffer? = null
+    private var mIsSurfaceTextureReady: Boolean = false
     private var mCopyShader: CopyShader? = null
 
     constructor(context: Context) : super(context) {
@@ -83,7 +84,10 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     }
 
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
-        // TODO("Not yet implemented")
+        queueEvent {
+            mIsSurfaceTextureReady = true
+            requestRender()
+        }
     }
 
     fun setLifecycleOwner(lifecycleOwner: LifecycleOwner) {
