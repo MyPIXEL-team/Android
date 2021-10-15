@@ -13,7 +13,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.example.mypixel.camera.Camera
 import com.example.mypixel.camera.gl.GLFrameBuffer
+import com.example.mypixel.camera.gl.GLUtils
 import com.example.mypixel.camera.shader.CopyShader
+import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -26,6 +28,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     private var mSurfaceFrameBuffer: GLFrameBuffer? = null
     private var mIsSurfaceTextureReady: Boolean = false
     private var mCopyShader: CopyShader? = null
+    private lateinit var mFullQuadVertices: FloatBuffer
 
     constructor(context: Context) : super(context) {
         init()
@@ -109,6 +112,8 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     }
 
     private fun init() {
+        mFullQuadVertices = GLUtils().createFullQuadVertices()
+
         setEGLContextClientVersion(3)
         setRenderer(this)
         renderMode = RENDERMODE_WHEN_DIRTY
