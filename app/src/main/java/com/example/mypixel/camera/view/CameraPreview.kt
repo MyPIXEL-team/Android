@@ -15,6 +15,7 @@ import com.example.mypixel.camera.Camera
 import com.example.mypixel.camera.gl.GLFrameBuffer
 import com.example.mypixel.camera.gl.GLUtils
 import com.example.mypixel.camera.shader.CopyShader
+import com.example.mypixel.camera.shader.Shader
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -120,6 +121,17 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     }
 
     private fun startCamera() {
+    }
+
+    private fun runShaderProgram(shader: Shader, inputFrameBuffer: GLFrameBuffer, outputFrameBuffer: GLFrameBuffer?) {
+        if (outputFrameBuffer == null) {
+            GLES31.glBindFramebuffer(GLES31.GL_FRAMEBUFFER, 0)
+            GLES31.glViewport(0, 0, mWidth, mHeight)
+        } else {
+            outputFrameBuffer.bind()
+        }
+
+        shader.onDraw(inputFrameBuffer.getTexture(), mFullQuadVertices)
     }
 
     private fun releaseCamera() {
