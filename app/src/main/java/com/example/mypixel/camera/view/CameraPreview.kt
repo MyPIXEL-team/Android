@@ -1,7 +1,7 @@
 package com.example.mypixel.camera.view
 
 import android.content.Context
-import android.graphics.SurfaceTexture
+import android.graphics.*
 import android.opengl.GLES11Ext
 import android.opengl.GLES31
 import android.opengl.GLSurfaceView
@@ -16,6 +16,8 @@ import com.example.mypixel.camera.gl.GLFrameBuffer
 import com.example.mypixel.camera.gl.GLUtils
 import com.example.mypixel.camera.shader.CopyShader
 import com.example.mypixel.camera.shader.Shader
+import com.google.mlkit.vision.common.InputImage
+import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -143,6 +145,43 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
     private fun startCamera() {
         mCamera?.start()
+    }
+
+    private fun getCurrentFrameAsBitmap(): Bitmap {
+        val buffer = ByteBuffer.allocateDirect(mWidth * mHeight * 4)
+        GLES31.glReadPixels(0, 0, mWidth, mHeight, GLES31.GL_RGBA, GLES31.GL_UNSIGNED_BYTE, buffer)
+
+        buffer.rewind()
+
+        val bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888)
+        bitmap.copyPixelsFromBuffer(buffer)
+
+        return bitmap
+    }
+
+    private fun getInputBitmap(bitmap: Bitmap): Bitmap {
+        val width = 240
+        val height = 320
+        val widthRatio = width.toFloat() / bitmap.width
+        val heightRatio = height.toFloat() / bitmap.height
+
+        val inputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+
+        val matrix = Matrix()
+        matrix.setScale(widthRatio, heightRatio)
+        matrix.postRotate(180.0f, width / 2.0f, height / 2.0f)
+
+        val canvas = Canvas(inputBitmap)
+        canvas.drawBitmap(bitmap, matrix, null)
+
+        return inputBitmap
+    }
+
+    private fun getInputImage(): InputImage {
+        val frameBitmap = getCurrentFrameAsBitmap()
+        val inputBitmap = getInputBitmap(frameBitmap)
+
+        return InputImage.fromBitmap(inputBitmap, 0)
     }
 
     private fun runShaderProgram(shader: Shader, inputFrameBuffer: GLFrameBuffer, outputFrameBuffer: GLFrameBuffer?) {
