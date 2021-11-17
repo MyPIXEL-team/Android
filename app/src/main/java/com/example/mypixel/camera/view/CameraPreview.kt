@@ -1,7 +1,10 @@
 package com.example.mypixel.camera.view
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Matrix
+import android.graphics.SurfaceTexture
 import android.opengl.GLES11Ext
 import android.opengl.GLES31
 import android.opengl.GLSurfaceView
@@ -33,6 +36,8 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     private var mCopyShader: CopyShader? = null
     private val mTransform = FloatArray(16)
     private lateinit var mFullQuadVertices: FloatBuffer
+    private var mPendingInputImage: InputImage? = null
+    private val mLockInputImage = Any()
 
     constructor(context: Context) : super(context) {
         init()
@@ -103,6 +108,10 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
                     runShaderProgram(copyShader, surfaceFrameBuffer, null)
                 }
             } ?: return
+
+            synchronized(mLockInputImage) {
+                mPendingInputImage = getInputImage()
+            }
         }
     }
 
