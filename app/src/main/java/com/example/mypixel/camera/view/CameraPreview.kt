@@ -20,6 +20,10 @@ import com.example.mypixel.camera.gl.GLUtils
 import com.example.mypixel.camera.shader.CopyShader
 import com.example.mypixel.camera.shader.Shader
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.Face
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetector
+import com.google.mlkit.vision.face.FaceDetectorOptions
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
@@ -36,8 +40,13 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     private var mCopyShader: CopyShader? = null
     private val mTransform = FloatArray(16)
     private lateinit var mFullQuadVertices: FloatBuffer
-    private var mPendingInputImage: InputImage? = null
-    private val mLockInputImage = Any()
+    private lateinit var mFaceDetector: FaceDetector
+    private val mLockFaceDetecting = Any()
+    private val mFaceDetectingRunnable: FaceDetectingRunnable = FaceDetectingRunnable()
+    private var mFaceDetectingThread: Thread? = null
+    private var mIsFaceDetectingThreadStarted: Boolean = false
+    private var mIsFaceReady: Boolean = false
+    private var mFace: Face? = null
 
     constructor(context: Context) : super(context) {
         init()
@@ -109,9 +118,18 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
                 }
             } ?: return
 
-            synchronized(mLockInputImage) {
-                mPendingInputImage = getInputImage()
+            mFaceDetectingRunnable.setNextInputImage(getInputImage())
+        }
+
+        if (mIsFaceReady) {
+            for (contour in mFace!!.allContours) {
+                for (point in contour.points) {
+                    // TODO: Draw each contour point.
+                }
             }
+
+            mFace = null
+            mIsFaceReady = false
         }
     }
 
@@ -140,6 +158,11 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
         setEGLContextClientVersion(3)
         setRenderer(this)
         renderMode = RENDERMODE_WHEN_DIRTY
+
+        val faceDetectorOptions = FaceDetectorOptions.Builder()
+                .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+                .build()
+        mFaceDetector = FaceDetection.getClient(faceDetectorOptions)
     }
 
     private fun createCamera() {
@@ -154,6 +177,12 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
     private fun startCamera() {
         mCamera?.start()
+
+        if (!mIsFaceDetectingThreadStarted) {
+            mFaceDetectingRunnable.setActive(true)
+            mFaceDetectingThread = Thread(mFaceDetectingRunnable).apply { start() }
+            mIsFaceDetectingThreadStarted = true
+        }
     }
 
     private fun getCurrentFrameAsBitmap(): Bitmap {
@@ -225,6 +254,71 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
             mCopyShader?.release()
             mCopyShader = null
+
+            synchronized(mLockFaceDetecting) {
+                mFaceDetectingRunnable.setActive(false)
+                mFaceDetectingThread?.join()
+                mFaceDetectingThread = null
+                mIsFaceDetectingThreadStarted = false
+            }
+        }
+    }
+
+    private inner class FaceDetectingRunnable : Runnable {
+        private var mIsActive: Boolean = false
+        private val mLockNextInputImage = Any()
+        private var mNextInputImage: InputImage? = null
+
+        fun setActive(active: Boolean) {
+            synchronized(mLockNextInputImage) {
+                mIsActive = active
+                mLockNextInputImage.notifyAll()
+            }
+        }
+
+        fun setNextInputImage(inputImage: InputImage) {
+            synchronized(mLockNextInputImage) {
+                mNextInputImage = inputImage
+                mLockNextInputImage.notifyAll()
+            }
+        }
+
+        override fun run() {
+            var inputImage: InputImage
+
+            while (true) {
+                synchronized(mLockNextInputImage) {
+                    while (mIsActive && mNextInputImage == null) {
+                        try {
+                            mLockNextInputImage.wait()
+                        } catch (e: Exception) {
+                            return
+                        }
+                    }
+
+                    if (!mIsActive) {
+                        return
+                    }
+
+                    inputImage = mNextInputImage!!
+                    mNextInputImage = null
+                }
+
+                synchronized(mLockFaceDetecting) {
+                    mFaceDetector.process(inputImage).addOnSuccessListener { faces ->
+                        if (faces.size > 0) {
+                            mFace = faces[0]
+                            mIsFaceReady = true
+                        }
+                    }
+                }
+            }
         }
     }
 }
+
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+private fun Any.wait() = (this as Object).wait()
+
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+private fun Any.notifyAll() = (this as Object).notifyAll()
