@@ -1,10 +1,7 @@
 package com.example.mypixel.camera.view
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.SurfaceTexture
+import android.graphics.*
 import android.opengl.GLES11Ext
 import android.opengl.GLES31
 import android.opengl.GLSurfaceView
@@ -124,12 +121,24 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
             } ?: return
 
             mFaceDetectingRunnable.setNextInputImage(getInputImage())
+
+            invalidate()
         }
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
 
         if (mIsFaceReady) {
-            for (contour in mFace!!.allContours) {
-                for (point in contour.points) {
-                    // TODO: Draw each contour point.
+            mFace?.let { face ->
+                for (contour in face.allContours) {
+                    for (point in contour.points) {
+                        val paint = Paint()
+                        paint.style = Paint.Style.FILL;
+                        paint.color = Color.RED
+
+                        canvas.drawCircle(translateX(point.x), translateY(point.y), 6.0f, paint)
+                    }
                 }
             }
 
@@ -162,6 +171,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
         setEGLContextClientVersion(3)
         setRenderer(this)
+        setWillNotDraw(false)
         renderMode = RENDERMODE_WHEN_DIRTY
 
         val faceDetectorOptions = FaceDetectorOptions.Builder()
