@@ -238,6 +238,12 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
         shader.onDraw(inputFrameBuffer.getTexture(), mFullQuadVertices)
     }
 
+    private fun translateX(x: Float): Float = width - scale(x)
+
+    private fun translateY(y: Float): Float = scale(y)
+
+    private fun scale(pixel: Float): Float = pixel * mInputImageScaleFactor
+
     private fun releaseCamera() {
         mCamera?.let { camera ->
             mLifecycle?.removeObserver(this)
