@@ -47,6 +47,9 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     private var mIsFaceDetectingThreadStarted: Boolean = false
     private var mIsFaceReady: Boolean = false
     private var mFace: Face? = null
+    private val mInputImageWidth = 240
+    private val mInputImageHeight = 320
+    private var mInputImageScaleFactor: Float = 0.0f
 
     constructor(context: Context) : super(context) {
         init()
@@ -85,6 +88,8 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
         mWidth = width
         mHeight = height
+
+        mInputImageScaleFactor = height / mInputImageHeight.toFloat()
 
         mSurfaceFrameBuffer = GLFrameBuffer(width, height, GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES31.GL_RGBA, GLES31.GL_UNSIGNED_BYTE)
 
@@ -198,8 +203,8 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     }
 
     private fun getInputBitmap(bitmap: Bitmap): Bitmap {
-        val width = 240
-        val height = 320
+        val width = mInputImageWidth
+        val height = mInputImageHeight
         val widthRatio = width.toFloat() / bitmap.width
         val heightRatio = height.toFloat() / bitmap.height
 
