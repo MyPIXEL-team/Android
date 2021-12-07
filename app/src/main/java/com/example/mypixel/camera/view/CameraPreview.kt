@@ -1,10 +1,7 @@
 package com.example.mypixel.camera.view
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.SurfaceTexture
+import android.graphics.*
 import android.opengl.GLES11Ext
 import android.opengl.GLES31
 import android.opengl.GLSurfaceView
@@ -145,7 +142,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
         if (mIsFaceReady) {
             mFace?.let { face ->
-                // TODO: Draw a facial filter.
+                mFilters[mCurrentFilter].onDraw(canvas, face)
             }
 
             mFace = null
