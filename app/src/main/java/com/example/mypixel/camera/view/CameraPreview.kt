@@ -19,6 +19,10 @@ import com.example.mypixel.camera.gl.GLFrameBuffer
 import com.example.mypixel.camera.gl.GLUtils
 import com.example.mypixel.camera.shader.CopyShader
 import com.example.mypixel.camera.shader.Shader
+import com.example.mypixel.filter.BeardFilter
+import com.example.mypixel.filter.CapFilter
+import com.example.mypixel.filter.Filter
+import com.example.mypixel.filter.GogglesFilter
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
@@ -50,6 +54,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     private val mInputImageWidth = 240
     private val mInputImageHeight = 320
     private var mInputImageScaleFactor: Float = 0.0f
+    private val mFilters: Array<Filter> = arrayOf(CapFilter(), GogglesFilter(), BeardFilter())
 
     constructor(context: Context) : super(context) {
         init()
@@ -91,7 +96,10 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
         mInputImageScaleFactor = height / mInputImageHeight.toFloat()
 
-        // TODO: Init Filter instance.
+        mFilters.forEach { filter ->
+            filter.setWidth(mWidth)
+            filter.setScaleFactor(mInputImageScaleFactor)
+        }
 
         mSurfaceFrameBuffer = GLFrameBuffer(width, height, GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES31.GL_RGBA, GLES31.GL_UNSIGNED_BYTE)
 
