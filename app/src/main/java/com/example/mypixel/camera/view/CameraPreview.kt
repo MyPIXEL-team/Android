@@ -1,7 +1,10 @@
 package com.example.mypixel.camera.view
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Matrix
+import android.graphics.SurfaceTexture
 import android.opengl.GLES11Ext
 import android.opengl.GLES31
 import android.opengl.GLSurfaceView
@@ -88,6 +91,8 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
         mInputImageScaleFactor = height / mInputImageHeight.toFloat()
 
+        // TODO: Init Filter instance.
+
         mSurfaceFrameBuffer = GLFrameBuffer(width, height, GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES31.GL_RGBA, GLES31.GL_UNSIGNED_BYTE)
 
         val oldSurfaceTexture: SurfaceTexture? = mSurfaceTexture
@@ -131,15 +136,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
         if (mIsFaceReady) {
             mFace?.let { face ->
-                for (contour in face.allContours) {
-                    for (point in contour.points) {
-                        val paint = Paint()
-                        paint.style = Paint.Style.FILL;
-                        paint.color = Color.RED
-
-                        canvas.drawCircle(translateX(point.x), translateY(point.y), 6.0f, paint)
-                    }
-                }
+                // TODO: Draw a facial filter.
             }
 
             mFace = null
@@ -247,12 +244,6 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
 
         shader.onDraw(inputFrameBuffer.getTexture(), mFullQuadVertices)
     }
-
-    private fun translateX(x: Float): Float = width - scale(x)
-
-    private fun translateY(y: Float): Float = scale(y)
-
-    private fun scale(pixel: Float): Float = pixel * mInputImageScaleFactor
 
     private fun releaseCamera() {
         mCamera?.let { camera ->
