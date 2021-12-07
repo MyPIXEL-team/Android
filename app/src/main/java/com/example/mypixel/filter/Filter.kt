@@ -48,9 +48,9 @@ abstract class Filter {
 
     protected open fun onDrawRightCheek(canvas: Canvas, points: List<PointF>) {}
 
-    private fun translateX(x: Float): Float = mWidth - scale(x)
+    protected fun translateX(x: Float): Float = mWidth - scale(x)
 
-    private fun translateY(y: Float): Float = scale(y)
+    protected fun translateY(y: Float): Float = scale(y)
 
-    private fun scale(pixel: Float): Float = pixel * mScaleFactor
+    protected fun scale(pixel: Float): Float = pixel * mScaleFactor
 }
