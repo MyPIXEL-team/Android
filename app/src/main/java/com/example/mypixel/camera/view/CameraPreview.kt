@@ -55,6 +55,7 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
     private val mInputImageHeight = 320
     private var mInputImageScaleFactor: Float = 0.0f
     private val mFilters: Array<Filter> = arrayOf(CapFilter(), GogglesFilter(), BeardFilter())
+    private var mCurrentFilter: Int = 0
 
     constructor(context: Context) : super(context) {
         init()
@@ -169,6 +170,14 @@ class CameraPreview : LifecycleObserver, GLSurfaceView, GLSurfaceView.Renderer, 
         releaseCamera()
         createCamera()
         startCamera()
+    }
+
+    fun setFilter(position: Int) {
+        if (position > mFilters.size) {
+            return
+        }
+
+        mCurrentFilter = position
     }
 
     private fun init() {

@@ -15,6 +15,7 @@ import com.example.mypixel.camera.view.CameraPreview
 import me.relex.circleindicator.CircleIndicator3
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var cameraPreview: CameraPreview
     private lateinit var viewPager: ViewPager2
     private lateinit var mIndicator: CircleIndicator3
     private var numPage = 3
@@ -33,6 +34,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        cameraPreview = findViewById(R.id.camera_preview)
+
         viewPager = findViewById(R.id.viewPager_id)
 
         numPage = bgColors.size
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity() {
                 super.onPageSelected(position)
 
                 mIndicator.animatePageSelected(position)
+                cameraPreview.setFilter(position)
             }
         })
     }
@@ -93,7 +97,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupCameraPreview() {
-        val cameraPreview = findViewById<CameraPreview>(R.id.camera_preview)
         cameraPreview.setLifecycleOwner(this)
         cameraPreview.setupCamera()
     }
